@@ -56,7 +56,7 @@ class DataManipulator:
                 elif minimum_price_bank_price < current_bank_price:
                     minimum_price_bank = bank
 
-        profit_margin = float(maximum_price_bank_price - minimum_price_bank_price)
+        profit_margin = (float(maximum_price_bank_price - minimum_price_bank_price)*110)
         if profit_margin != 0.0:
             return TradeOption(currency, profit_margin, maximum_price_bank, minimum_price_bank)
         return None

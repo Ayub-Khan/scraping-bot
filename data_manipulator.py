@@ -16,7 +16,7 @@ class DataManipulator:
 
     def load_all_data(self):
         all_trade_options = []
-        with open('data/currency_data.txt', 'r') as file:
+        with open('currency_data.txt', 'r') as file:
             for line in file:
                 # Load all data into one array
                 all_data = line.strip().split('^')

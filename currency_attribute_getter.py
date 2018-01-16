@@ -32,7 +32,7 @@ class CurrencyAttributeGetter(scrapy.Spider):
         ]
         title = response.url[37:response.url.find("#")]
         output_string = ''
-        out_put_file = open("currency_data.txt", "a+")
+        out_put_file = open("currency_data.txt", "wa+")
         output_string = title
         markets = response.css('tr')
         for market in markets:

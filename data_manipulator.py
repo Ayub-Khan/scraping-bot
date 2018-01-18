@@ -32,7 +32,9 @@ class DataManipulator:
     def show_best_trade_option(self, all_trade_options):
         all_trade_options = sorted(all_trade_options, key=lambda option: option.profit_margin, reverse=True)
         for i in range(len(all_trade_options)):
-            print(all_trade_options[i])
+            if all_trade_options[i].profit_margin>7.0:
+                print('Arbitrage % :' + str(round(all_trade_options[i].profit_margin, 2)) + ' buy from ' +
+                      all_trade_options[i].bank_2 + ' sell on ' + all_trade_options[i].bank_1)
 
     def return_best_trade_option_for_one_currency(self, data):
         maximum_price_bank = None
@@ -56,7 +58,7 @@ class DataManipulator:
                 elif minimum_price_bank_price < current_bank_price:
                     minimum_price_bank = bank
 
-        profit_margin = (float(maximum_price_bank_price - minimum_price_bank_price)*110)
+        profit_margin = (float(maximum_price_bank_price - minimum_price_bank_price)*100)/minimum_price_bank_price
         if profit_margin != 0.0:
             return TradeOption(currency, profit_margin, maximum_price_bank, minimum_price_bank)
         return None

@@ -1,5 +1,5 @@
 import scrapy
-
+from nose.tools import set_trace
 
 class CurrencyAttributeGetter(scrapy.Spider):
     name = 'currency_attribute_getter'
@@ -42,7 +42,7 @@ class CurrencyAttributeGetter(scrapy.Spider):
                 volume = market.css('td')[3].css('span::text')[0].extract().strip()
                 # volume_percentage = response.css('tr')[1].css('td::text')[5].extract().strip() # Not using Currently
                 price = market.css('td')[4].css('span::text')[0].extract().strip()
-                updated = market.css('td::text')[6].extract().strip()
+                updated = market.css('td::text')[7].extract().strip()
                 if updated == 'Recently' and (pair[0] in required_pair_list or pair[1] in required_pair_list)\
                         and (float(volume.replace('$', '').replace(',', '') != 0.0)) \
                             and (source in required_sites):

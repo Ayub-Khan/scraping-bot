@@ -1,3 +1,4 @@
+from nose.tools import set_trace
 class TradeOption:
     def __init__(self, currency, profit_margin, bank_1, bank_2):
         self.profit_margin = profit_margin
@@ -33,35 +34,75 @@ class DataManipulator:
         all_trade_options = sorted(all_trade_options, key=lambda option: option.profit_margin, reverse=True)
         for i in range(len(all_trade_options)):
             if all_trade_options[i].profit_margin>7.0:
-                print('Arbitrage % :' + str(round(all_trade_options[i].profit_margin, 2)) + ' buy from ' +
-                      all_trade_options[i].bank_2 + ' sell on ' + all_trade_options[i].bank_1)
+                print('Arbitrage % :' + str(round(all_trade_options[i].profit_margin, 2)) +
+                      'Currency : ' +
+                      str(all_trade_options[i].currency) + ' buy from ' +
+                      all_trade_options[i].bank_2 +
+                      ' sell on ' + all_trade_options[i].bank_1)
 
     def return_best_trade_option_for_one_currency(self, data):
-        maximum_price_bank = None
-        minimum_price_bank = None
-        maximum_price_bank_price = 0.0
-        minimum_price_bank_price = 0.0
-        profit_margin = None
+        different_pairs = {}
+        results = []
         currency = data[0]
-        for bank in data[1:]:
-            bank_data = bank.strip().split('|')
-            if not maximum_price_bank:
-                maximum_price_bank = bank
-            if not minimum_price_bank:
-                minimum_price_bank = bank
-            if maximum_price_bank and minimum_price_bank:
-                maximum_price_bank_price = float(maximum_price_bank.split('|')[2].replace('$', '').replace(',', ''))
-                minimum_price_bank_price = float(minimum_price_bank.split('|')[2].replace('$', '').replace(',', ''))
-                current_bank_price = float(bank_data[2].replace('$', '').replace(',', ''))
-                if current_bank_price > maximum_price_bank_price:
-                    maximum_price_bank = bank
-                elif minimum_price_bank_price < current_bank_price:
-                    minimum_price_bank = bank
+        markets = data[1:]
+        for i in range(len(markets)):
+            bank_data = markets[i].strip().split('|')
+            pair_value = bank_data[1]
+            count = 0
+            for j in range(len(markets)):
+                j_pair_values = markets[j].strip().split('|')[1].split(':')
+                i_pair_values = pair_value.split(':')
+                if i_pair_values[0]==j_pair_values[0] and i_pair_values[1]==j_pair_values[1]:
+                    count += 1
 
-        profit_margin = (float(maximum_price_bank_price - minimum_price_bank_price)*100)/minimum_price_bank_price
-        if profit_margin != 0.0:
-            return TradeOption(currency, profit_margin, maximum_price_bank, minimum_price_bank)
-        return None
+            if count > 1:
+                try:
+                    different_pairs[pair_value].append(markets[i])
+                except KeyError:
+                    different_pairs[pair_value] = [markets[i]]
+
+        if not different_pairs:
+            return
+
+        for pair in different_pairs.keys():
+            data = different_pairs[pair]
+            maximum_price_bank = None
+            minimum_price_bank = None
+            maximum_price_bank_price = 0.0
+            minimum_price_bank_price = 0.0
+            profit_margin = None
+            for bank in data:
+                bank_data = bank.strip().split('|')
+                if not maximum_price_bank:
+                    maximum_price_bank = bank
+                    minimum_price_bank = bank
+                elif maximum_price_bank and minimum_price_bank:
+                    maximum_price_bank_price = float(maximum_price_bank.split('|')[2].replace('$', '').replace(',', ''))
+                    minimum_price_bank_price = float(minimum_price_bank.split('|')[2].replace('$', '').replace(',', ''))
+                    current_bank_price = float(bank_data[2].replace('$', '').replace(',', ''))
+                    if current_bank_price > maximum_price_bank_price:
+                        maximum_price_bank = bank
+                    elif minimum_price_bank_price > current_bank_price:
+                        minimum_price_bank = bank
+
+            maximum_price_bank_price = float(maximum_price_bank.split('|')[2].replace('$', '').replace(',', ''))
+            minimum_price_bank_price = float(minimum_price_bank.split('|')[2].replace('$', '').replace(',', ''))
+            profit_margin = (float(maximum_price_bank_price - minimum_price_bank_price)*100)/minimum_price_bank_price
+            if profit_margin != 0.0:
+                results.append(TradeOption(currency, profit_margin, maximum_price_bank, minimum_price_bank))
+
+        if not results:
+            return
+
+        if len(results)==1:
+            return results[0]
+        try:
+            return sorted(results, key=lambda result: result.profit_margin, reverse=True)[0]
+        except Exception as e:
+            print currency
+            print different_pairs
+            print results
+            print e
 
     def sorter(self, all_trade_options):
         for i in range(len(all_trade_options)):

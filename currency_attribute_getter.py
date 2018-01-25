@@ -1,5 +1,4 @@
 import scrapy
-from nose.tools import set_trace
 
 class CurrencyAttributeGetter(scrapy.Spider):
     name = 'currency_attribute_getter'
@@ -18,6 +17,7 @@ class CurrencyAttributeGetter(scrapy.Spider):
             'USD',
             'ETH',
             'USDT',
+            'NEO',
         ]
         required_sites = [
             u'Binance',
@@ -44,8 +44,7 @@ class CurrencyAttributeGetter(scrapy.Spider):
                 price = market.css('td')[4].css('span::text')[0].extract().strip()
                 updated = market.css('td::text')[7].extract().strip()
                 if updated == 'Recently' and (pair[0] in required_pair_list or pair[1] in required_pair_list)\
-                        and (float(volume.replace('$', '').replace(',', '') != 0.0)) \
-                            and (source in required_sites):
+                        and volume != '$0' and (source in required_sites):
                     output_string += (
                         '^' +
                         source
